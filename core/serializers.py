@@ -78,7 +78,7 @@ class HistoriaClinicaSerializer(serializers.ModelSerializer):
     estudios_radiologicos = EstudioRadiologicoSerializer(many=True)
     vacunas = VacunaSerializer(many=True)
     reactantes = ReactantesFaseAgudaSerializer(many=True)
-    sensibilidadmedicamentosa_set = SensibilidadMedicamentosaSerializer(many=True)
+    reacciones = SensibilidadMedicamentosaSerializer(many=True)
     registrotransfusion_set = RegistroTransfusionSerializer(many=True)
 
     class Meta:

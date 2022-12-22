@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'rest_framework.authtoken',
+    'daterange.apps.DateRangeFilterConfig',
+    'widget_tweaks',
 
 ]
 # Application definition
@@ -92,7 +94,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'sghc.wsgi.application'
-ADMIN_SITE_NAME = 'Ecommerce API'
+ADMIN_SITE_NAME = 'Sistema de Gestión de Historias Clínicas API'
 
 
 # Database

@@ -21,10 +21,14 @@ from rest_framework import permissions
 from rest_framework.documentation import include_docs_urls
 
 from core.api import *
+from core.views import subir_dicom, FileFieldFormView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/historiaclinica/', HistoriaClinicaView.as_view(), name='historiaclinica_view'),
+    path('dicom/subir/', FileFieldFormView.as_view(), name='subir_dicom'),
     path('api/v1/historiaclinica/<int:pk>/', HistoriaClinicaDetail.as_view(), name='historiaclinica_detail'),
     path('api/v1/coreapi/', include_docs_urls(title=settings.ADMIN_SITE_NAME, permission_classes=(permissions.AllowAny,))),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+admin.site.site_header = 'Sistema de Gestión de Historias Clínicas'
+admin.site.site_title = "SGHC"

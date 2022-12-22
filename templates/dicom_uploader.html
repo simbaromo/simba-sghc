@@ -1,0 +1,11 @@
+{% extends 'admin/base_site.html' %}
+{% load widget_tweaks %}
+{% block content %}
+    <h1>ETC</h1>
+    <h1>Subir un único archivo significa que se está subiendo Rayos X, subir un cojunto de archivos significa que se está subiendo un TAC</h1>
+    <form method="post" action="{% url 'subir_dicom' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+        {% render_field form.file_field %}
+        <input type="submit" value="Enviar">
+    </form>
+{% endblock %}

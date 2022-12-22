@@ -19,7 +19,7 @@ class Medicamento(models.Model):
 
     class Meta:
         verbose_name = 'Medicamento, sangre y derivados'
-        verbose_name_plural = '03 - Medicamentos, sangre y derivados'
+        verbose_name_plural = 'Medicamentos, sangre y derivados'
 
 
 class Reaccion(models.Model):
@@ -30,8 +30,7 @@ class Reaccion(models.Model):
 
     class Meta:
         verbose_name = 'Reacción'
-        verbose_name_plural = '04 - Reacciones'
-
+        verbose_name_plural = 'Reacciones'
 
 
 class Unidad(models.Model):
@@ -42,29 +41,40 @@ class Unidad(models.Model):
 
     class Meta:
         verbose_name = 'Unidad'
-        verbose_name_plural = '02 - Unidades'
+        verbose_name_plural = 'Unidades'
+
 
 class HistoriaClinica(models.Model):
     GENERO_CHOICES = (
-        ('m','Masculino'),
+        ('m', 'Masculino'),
         ('f', 'Femenino'),
     )
     id = models.CharField(max_length=255, primary_key=True, verbose_name='Identificador de historia clínica')
-    unidad = models.ForeignKey(Unidad, on_delete=models.SET_NULL, null=True)
+    unidad = models.ForeignKey(Unidad, on_delete=models.SET_NULL, null=True,)
     fecha = models.DateField(verbose_name='Fecha de inscripción')
     apellido1 = models.CharField(max_length=255, verbose_name='Apellido 1')
     apellido2 = models.CharField(max_length=255, verbose_name='Apellido 2')
     nombres = models.CharField(max_length=255, verbose_name='Nombres')
-    ci = models.CharField(max_length=11, verbose_name='Carné de indentidad', unique=True, validators=[RegexValidator(regex='^.{11}$', message='Este campo debe tener 11 dígitos', code='nomatch')])
+    ci = models.CharField(max_length=11, verbose_name='Carné de indentidad', unique=True, validators=[
+        RegexValidator(regex='^.{11}$', message='Este campo debe tener 11 dígitos', code='nomatch')])
     edad = models.IntegerField(default=0)
     genero = models.CharField(max_length=255, choices=GENERO_CHOICES)
 
     def __str__(self):
         return self.nombres
 
+    def tiene_imagenes(self):
+        if len(self.estudios_radiologicos.all()) > 0:
+            return 'Si'
+        else:
+            return 'No'
+    tiene_imagenes.allow_tags = True
+
+
     class Meta:
         verbose_name = 'Modelo de historia Clínica'
-        verbose_name_plural = '01 - Modelos de historia Clínica'
+        verbose_name_plural = 'Modelos de historia Clínica'
+
 
 class MedicamentosNacionales(models.Model):
     hc = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, related_name='medicamentos_nacionales')
@@ -77,9 +87,10 @@ class MedicamentosNacionales(models.Model):
         verbose_name = 'Medicamento nacional'
         verbose_name_plural = 'Medicamentos nacionales'
 
+
 class Fecha(models.Model):
     TIPO_CHOICES = (
-        ('1','Positivo'),
+        ('1', 'Positivo'),
         ('2', 'Ingreso'),
         ('3', 'Defuncion'),
 
@@ -93,8 +104,9 @@ class Fecha(models.Model):
         return self.get_tipo_display()
 
     class Meta:
-        verbose_name = 'Fecha'
-        verbose_name_plural = 'Fechas'
+        verbose_name = 'Fecha referente a la COVID-19'
+        verbose_name_plural = 'Fechas referentes a la COVID-19'
+
 
 class Comorbilidad(models.Model):
     hc = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, related_name='comorbilidades')
@@ -107,9 +119,10 @@ class Comorbilidad(models.Model):
         verbose_name = 'Comorbilidad'
         verbose_name_plural = 'Comorbilidades'
 
+
 class EstudioRadiologico(models.Model):
     TIPO_CHOICES = (
-        ('1','Rayos X'),
+        ('1', 'Rayos X'),
         ('2', 'TAC'),
     )
     hc = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, related_name='estudios_radiologicos')
@@ -117,12 +130,13 @@ class EstudioRadiologico(models.Model):
     imagen = models.FileField(upload_to='imagenes/')
     fecha = models.DateField()
 
-    def  __str__(self):
+    def __str__(self):
         return self.tipo
 
     class Meta:
         verbose_name = 'Estudio radiológico'
         verbose_name_plural = 'Estudios radiológicos'
+
 
 class TipoVacuna(models.Model):
     nombre = models.CharField(max_length=255)
@@ -133,6 +147,7 @@ class TipoVacuna(models.Model):
     class Meta:
         verbose_name = 'Tipo de vacuna'
         verbose_name_plural = 'Tipos de vacuna'
+
 
 class Vacuna(models.Model):
     hc = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, related_name='vacunas')
@@ -147,8 +162,9 @@ class Vacuna(models.Model):
         verbose_name = 'Vacuna'
         verbose_name_plural = 'Vacunas'
 
+
 class ReactantesFaseAguda(models.Model):
-    hc = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, related_name= 'reactantes')
+    hc = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, related_name='reactantes')
     proteinascr = models.FloatField()
     leucocitos_neutrofilo = models.FloatField()
     ferritina = models.FloatField()
@@ -160,8 +176,9 @@ class ReactantesFaseAguda(models.Model):
         verbose_name = 'Reactante de fase aguda'
         verbose_name_plural = 'Reactantes de fase aguda'
 
+
 class SensibilidadMedicamentosa(models.Model):
-    historia_clinica = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE)
+    historia_clinica = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, related_name='reacciones')
     medicamento = models.ForeignKey(Medicamento, on_delete=models.SET_NULL, null=True,
                                     verbose_name='medicamento, sangre y derivados')
     reccion = models.ForeignKey(Reaccion, on_delete=models.SET_NULL, null=True, verbose_name='Reacción')
@@ -173,6 +190,7 @@ class SensibilidadMedicamentosa(models.Model):
     class Meta:
         verbose_name = 'Sensibilidad Medicamentosa'
         verbose_name_plural = 'Sensibilidades Medicamentosas'
+
 
 class RegistroTransfusion(models.Model):
     historia_clinica = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE)
@@ -191,6 +209,7 @@ class RegistroTransfusion(models.Model):
         verbose_name = 'Registro de transfusión'
         verbose_name_plural = 'Registro de transfusiones'
 
+
 class AspectosPSI(models.Model):
     historia_clinica = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE)
     observaciones = models.TextField()
@@ -199,33 +218,37 @@ class AspectosPSI(models.Model):
         return str(self.pk)
 
     class Meta:
-        verbose_name = 'Aspecto Sicosocial e Interrelación médico de sala-médico de la familia'
-        verbose_name_plural = 'Aspectos Sicosociales e Interrelaciones médico de sala-médico de la familia'
+        verbose_name = 'Aspecto Psicosocial e Interrelación médico de sala-médico de la familia'
+        verbose_name_plural = 'Aspectos Psicosociales e Interrelaciones médico de sala-médico de la familia'
+
 
 class HistoriaEnfermedad(models.Model):
     historia_clinica = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE)
     motivo = models.TextField(verbose_name='Motivo del ingreso')
     historia = models.TextField(verbose_name='Historia de la enfermedad', help_text='Escribir las afecciones refiriendo'
                                                                                     ' su comienzo, la aparición cronológica de los síntomas, su evolución y terapéutica recibida')
-    asma_bronquial_texto =  models.CharField(max_length=255, verbose_name='Asma bronquial', blank=True, null=True)
+    asma_bronquial_texto = models.CharField(max_length=255, verbose_name='Asma bronquial', blank=True, null=True)
     asma_bronquial_personal = models.BooleanField(verbose_name='Personal', default=False)
     asma_bronquial_padre = models.BooleanField(verbose_name='Padre', default=False)
     asma_bronquial_madre = models.BooleanField(verbose_name='Madre', default=False)
     asma_bronquial_hijo = models.BooleanField(verbose_name='Hijo', default=False)
     asma_bronquial_otro = models.BooleanField(verbose_name='Otro', default=False)
-    cardiopatia_isquemica_texto = models.CharField(max_length=255, verbose_name='Cardiopatía isquémica', blank=True, null=True)
+    cardiopatia_isquemica_texto = models.CharField(max_length=255, verbose_name='Cardiopatía isquémica', blank=True,
+                                                   null=True)
     cardiopatia_isquemica_personal = models.BooleanField(verbose_name='Personal', default=False)
     cardiopatia_isquemica_padre = models.BooleanField(verbose_name='Padre', default=False)
     cardiopatia_isquemica_madre = models.BooleanField(verbose_name='Madre', default=False)
     cardiopatia_isquemica_hijo = models.BooleanField(verbose_name='Hijo', default=False)
     cardiopatia_isquemica_otro = models.BooleanField(verbose_name='Otro', default=False)
-    hipertension_arterial_texto = models.CharField(max_length=255, verbose_name='Hipertensión arterial', blank=True, null=True)
+    hipertension_arterial_texto = models.CharField(max_length=255, verbose_name='Hipertensión arterial', blank=True,
+                                                   null=True)
     hipertension_arterial_personal = models.BooleanField(verbose_name='Personal', default=False)
     hipertension_arterial_padre = models.BooleanField(verbose_name='Padre', default=False)
     hipertension_arterial_madre = models.BooleanField(verbose_name='Madre', default=False)
     hipertension_arterial_hijo = models.BooleanField(verbose_name='Hijo', default=False)
     hipertension_arterial_otro = models.BooleanField(verbose_name='Otro', default=False)
-    enfermedad_cerebro_vascular_texto = models.CharField(max_length=255, verbose_name='Enfermedad cerebro vascular', blank=True, null=True)
+    enfermedad_cerebro_vascular_texto = models.CharField(max_length=255, verbose_name='Enfermedad cerebro vascular',
+                                                         blank=True, null=True)
     enfermedad_cerebro_vascular_personal = models.BooleanField(verbose_name='Personal', default=False)
     enfermedad_cerebro_vascular_padre = models.BooleanField(verbose_name='Padre', default=False)
     enfermedad_cerebro_vascular_madre = models.BooleanField(verbose_name='Madre', default=False)
@@ -296,14 +319,15 @@ class HistoriaEnfermedad(models.Model):
         verbose_name = 'Historia de la enfermedad actual'
         verbose_name_plural = 'Historias de enfermedades'
 
+
 def hash_string(string):
     return hashlib.sha256(string.encode('utf-8')).hexdigest()
+
 
 class TAC(models.Model):
     historia_clinica = models.ForeignKey(HistoriaClinica, on_delete=models.CASCADE, null=True, blank=True)
     directorio = models.FileField(upload_to='TAC/')
     cant = models.IntegerField(default=0, blank=True, null=True)
-
 
     def __str__(self):
         return 'TAC ' + str(self.pk)
@@ -345,7 +369,9 @@ class TAC(models.Model):
                 nombres = nombre[2] + ' ' + nombre[3]
             except IndexError:
                 nombres = nombre[2]
-            user = HistoriaClinica(id=hash_string(str(ds.get('PatientID'))),ci=str(ds.get('PatientID')), nombres=nombres, apellido1=nombre[0], apellido2=nombre[1], fecha=datetime.datetime.now())
+            user = HistoriaClinica(id=hash_string(str(ds.get('PatientID'))), ci=str(ds.get('PatientID')),
+                                   nombres=nombres, apellido1=nombre[0], apellido2=nombre[1],
+                                   fecha=datetime.datetime.now())
             user.save()
         self.historia_clinica = user
         super().save(force_insert, force_update, *args, **kwargs)
@@ -358,7 +384,5 @@ class TAC(models.Model):
         super().save(force_insert, force_update, *args, **kwargs)
 
     class Meta:
-        verbose_name = 'Tomografía axial computarizada'
-        verbose_name_plural = '05 - Tomografías axiales computarizadas'
-
-
+        verbose_name = 'Imagen de Radiología Digital'
+        verbose_name_plural = 'Imágenes de Radiologías Digitales'

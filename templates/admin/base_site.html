@@ -1,0 +1,140 @@
+{% extends "admin/base.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            {% if user.is_authenticated == True %}
+                var h1_text = $('#content').children()[0];
+                $(h1_text).html('');
+            {% else %}
+                $('#ayuda-boton').hide()
+            {% endif %}
+            $('#ayuda-div').hide('fast');
+            $('#recent-actions-module').hide('fast')
+            {% for group in user.groups.all %}
+                {% for foo in group.permissions.all %}
+                    {% if foo.name == 'Can view log entry' %}
+                        $('#recent-actions-module').show('fast')
+                    {% endif %}
+                {% endfor %}
+
+
+            {% endfor %}
+
+            {% if user.groups %}
+
+            {% endif %}
+
+
+        })
+
+        function mostrar_ayuda() {
+            $('#ayuda-div').toggle('fast')
+        }
+    </script>
+    <style>
+        #ayuda-boton {
+            font-size: 30px;
+            font-family: 'Arial';
+            color: #f5dd5d;
+            float: bottom;
+            cursor: pointer
+        }
+
+        #ayuda-boton:hover {
+            font-size: 33px;
+            transition-duration: 0.2s;
+            color: #cbb957;
+        }
+
+        .no-visible {
+            display: none;
+        }
+
+        .neonText {
+            color: #f5dd5d;
+            text-shadow: 0 0 7px #f5dd5d,
+            0 0 10px #f5dd5d,
+            0 0 21px #f5dd5d,
+            0 0 30px #0fa,
+            0 0 42px #0fa,
+            0 0 82px #0fa,
+            0 0 92px #0fa,
+            0 0 102px #0fa;
+        }
+
+        .neonText:hover {
+            color: #f5dd5d !important;
+            font-weight: bolder;
+            text-shadow: none;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} |
+    {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {{ block.super }}
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+    <hr>
+    <a id="ayuda-boton" onclick="mostrar_ayuda()">Ayuda<i class="fa fa-plus"> ?</i></a>
+    <br>
+    <div id="ayuda-div">
+        <h4 style="text-align: justify">• Escriba [edad] para buscar en un rango de edades, ejemplo:
+            [edad]0-18 busca las historias clínicas de pacientes entre 0 y 18 años.
+            <br><br>
+            • Escriba [ferritina] para buscar los pacientes con ferritina por encima de un valor,
+            ejemplo: [ferritina]4.0 busca las historias clínicas de pacientes con ferritina
+            mayor o igual a 4.0.
+            <br><br>
+            • Escriba [proteinascr] para buscar los pacientes con proteinascr por encima de un
+            valor, ejemplo: [proteinascr]4.0 busca las historias clínicas de pacientes con proteinascr mayor o igual a
+            4.0.
+            <br><br>
+            • Escriba [leucocitos] para buscar los pacientes con leucocitos neutrofilo por encima de un valor, ejemplo:
+            [leucocitos]4.0 busca las historias clínicas de pacientes con leucocitos neutrofilo mayor o igual a 4.0.
+            <br><br>
+            • Escriba [positivo] para buscar los pacientes que son o han sido positivos a la COVID-19 en un rango de
+            fecha, ejemplo: [positivo]2022-12-01:2022-12-31 busca las historias clínicas de pacientes que fueron o
+            son positivos a la COVID-19 del 1ro de diciembre al 31 de diciembre de 2022
+            <br><br>
+            • Escriba [ingreso] para buscar los pacientes que están o han sido ingresados producto de COVID-19 en un
+            rango de fecha, ejemplo: [ingreso]2022-12-01:2022-12-31 busca las historias clínicas de pacientes que fueron
+            o están ingresados positivos a la COVID-19 del 1ro de diciembre al 31 de diciembre de 2022
+            <br><br>
+            • Escriba [defuncion] para buscar los pacientes que han fallecido en un rango de fecha,
+            ejemplo: [defuncion]2022-12-01:2022-12-31 busca las historias clínicas de pacientes que han fallecido del
+            1ro de diciembre al 31 de diciembre de 2022
+            <br><br>
+            • Escriba [radiologia]:si/no para buscar los pacientes que presentan o no estudios radiológicos,
+            ejemplo: [radiologia]:si busca las historias clínicas de pacientes que si presentan estudios
+            radiológicos, [radiologia]:no provoca el efecto contrario
+        </h4>
+    </div>
+
+{% endblock %}
+
+{% block nav-global %}
+{% endblock %}
+
+{% block usertools %}
+    <div id="user-tools">
+        BIENVENIDO, {{ user.username|upper }}.
+        {% if user.is_superuser == True %}
+            <a class="neonText" href="{% url 'subir_dicom' %}">Subir Radiología Digital</a> /
+        {% else %}
+            {% for group in user.groups.all %}
+                {% for foo in group.permissions.all %}
+                    {% if foo.name == 'Can change Estudio radiológico' %}
+                        <a class="neonText" href="{% url 'subir_dicom' %}">Subir Radiología Digital</a> /
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        <a href="{% url 'admin:password_change' %}">Cambiar Contraseña</a> /
+        <a href="{% url 'admin:logout' %}">Cerrar Sesión</a>
+    </div>
+{% endblock %}

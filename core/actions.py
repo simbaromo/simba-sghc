@@ -2,6 +2,8 @@ import csv
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 
+from sghc import settings
+
 
 def download_csv(modeladmin, request, queryset):
 
@@ -34,7 +36,7 @@ def download_csv(modeladmin, request, queryset):
         row = row + [comorbilidades]
         estudios_radiologicos = ""
         for item in obj.estudios_radiologicos.all():
-            estudios_radiologicos = estudios_radiologicos + item.get_tipo_display() + '-' + str(item.imagen.path) + '-' + str(item.fecha) + ','
+            estudios_radiologicos = estudios_radiologicos + item.get_tipo_display() + '-' + str(settings.BASE_DIR) + '\media{}'.format(item.imagen) + '-' + str(item.fecha) + ','
         row = row + [estudios_radiologicos]
         vacunas = ""
         for item in obj.vacunas.all():
@@ -47,7 +49,7 @@ def download_csv(modeladmin, request, queryset):
                 item.leucocitos_neutrofilo) + '-' + str(item.ferritina) + ','
         row = row + [reactantes]
         sensibilidadmedicamentosa_set = ""
-        for item in obj.sensibilidadmedicamentosa_set.all():
+        for item in obj.reacciones.all():
             sensibilidadmedicamentosa_set = sensibilidadmedicamentosa_set + str(item.medicamento) + '-' + str(
                 item.reccion) + '-' + str(item.fecha) + ','
         row = row + [sensibilidadmedicamentosa_set]
